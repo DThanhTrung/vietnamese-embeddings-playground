@@ -1,0 +1,21 @@
+# Paths are resolved from the repository root when this file is used there.
+dataset:
+  path: data/raw/sick_r/SICK.txt
+  file_format: tsv
+  delimiter: "\t"
+  encoding: utf-8
+  split_column: null
+  split_value: null
+
+benchmark:
+  name: sick-r
+  text_a_column: sentence_A
+  text_b_column: sentence_B
+  score_column: relatedness_score
+
+model:
+  model_name: BAAI/bge-m3
+  adapter_name: sentence-transformers
+  device: cpu
+  batch_size: 32
+  normalize_embeddings: true
