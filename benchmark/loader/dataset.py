@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
-
+from datasets import load_dataset
 
 class DatasetSource(ABC):
     """Load a dataset from one particular kind of source."""
@@ -71,6 +71,65 @@ class LocalFileDatasetSource(DatasetSource):
             data = data[data[self.config.split_column] == self.config.split_value]
 
         return data.reset_index(drop=True)
+
+
+@dataclass(frozen=True)
+class HuggingFaceDatasetConfig:
+    """Configuration for one split of a Hugging Face dataset."""
+
+    dataset_name: str
+    split: str
+    config_name: str = "default"
+
+    def __post_init__(self) -> None:
+        if not self.dataset_name.strip():
+            raise ValueError("dataset_name must not be empty")
+        if not self.split.strip():
+            raise ValueError("split must not be empty")
+
+
+class HuggingFaceDatasetSource(DatasetSource):
+    """Load a dataset split from the Hugging Face Hub as a dataframe."""
+
+    def __init__(self, config: HuggingFaceDatasetConfig) -> None:
+        self.config = config
+        self._cache: pd.DataFrame | None = None
+
+    def load(self) -> pd.DataFrame:
+        if self._cache is None:
+            dataset = load_dataset(
+                self.config.dataset_name,
+                name=self.config.config_name,
+                split=self.config.split,
+            )
+            self._cache = dataset.to_pandas().dropna().reset_index(drop=True)
+
+        return self._cache.copy()
+
+
+class SubsetDatasetSource(DatasetSource):
+    """Load a contiguous row subset from another dataset source."""
+
+    def __init__(
+        self,
+        source: DatasetSource,
+        start: int = 0,
+        end: int | None = None,
+    ) -> None:
+        if start < 0:
+            raise ValueError("Subset start index must be non-negative")
+        if end is not None and end < start:
+            raise ValueError("Subset end index must be greater than or equal to start")
+        self.source = source
+        self.start = start
+        self.end = end
+        self._cache: pd.DataFrame | None = None
+
+    def load(self) -> pd.DataFrame:
+        if self._cache is None:
+            data = self.source.load()
+            self._cache = data.iloc[self.start:self.end].reset_index(drop=True)
+        return self._cache.copy()
 
 
 def build_local_source(config: dict[str, Any]) -> LocalFileDatasetSource:

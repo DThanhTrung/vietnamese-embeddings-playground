@@ -4,7 +4,9 @@ from dataclasses import dataclass
 
 from module.embedding import EmbeddingService
 
-from .sts import STSBenchmark
+from .core import Benchmark
+from .core import STSBenchmark
+from .core import ViHSDBenchmark
 
 
 @dataclass(frozen=True)
@@ -21,10 +23,10 @@ class BenchmarkResult:
 class BenchmarkRunner:
     """Connect an embedding service to a supported benchmark task."""
 
-    def run_sts(
+    def run(
         self,
         service: EmbeddingService,
-        benchmark: STSBenchmark,
+        benchmark: Benchmark,
     ) -> BenchmarkResult:
         score = benchmark.evaluate(service)
         return BenchmarkResult(
@@ -34,3 +36,17 @@ class BenchmarkRunner:
             metric_name=benchmark.metric.name,
             score=score,
         )
+
+    def run_sts(
+        self,
+        service: EmbeddingService,
+        benchmark: STSBenchmark,
+    ) -> BenchmarkResult:
+        return self.run(service, benchmark)
+
+    def run_vihsd(
+        self,
+        service: EmbeddingService,
+        benchmark: ViHSDBenchmark,
+    ) -> BenchmarkResult:
+        return self.run(service, benchmark)

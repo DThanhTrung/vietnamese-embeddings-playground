@@ -1,0 +1,18 @@
+dataset:
+  name: ura-hcmut/UIT-ViHSD
+  config_name: default
+  train_split: train
+  dev_split: validation
+  test_split: test
+
+benchmark:
+  name: uit-vihsd
+  text_column: free_text
+  label_column: label_id
+
+model:
+  model_name: BAAI/bge-m3
+  adapter_name: sentence-transformers
+  device: cpu
+  batch_size: 32
+  normalize_embeddings: true

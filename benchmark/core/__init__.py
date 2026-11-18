@@ -1,17 +1,13 @@
 """Reusable building blocks for embedding benchmarks."""
 
-from .dataset import DatasetSource, LocalFileDatasetConfig, LocalFileDatasetSource
-from .metrics import SpearmanMetric
-from .runner import BenchmarkRunner, BenchmarkResult
+from .benchmark import Benchmark
 from .sts import STSBenchmark, STSBenchmarkConfig
+from .vihsd import ViHSDBenchmark, ViHSDBenchmarkConfig
 
 __all__ = [
-    "BenchmarkResult",
-    "BenchmarkRunner",
-    "DatasetSource",
-    "LocalFileDatasetConfig",
-    "LocalFileDatasetSource",
-    "SpearmanMetric",
+    "Benchmark",
     "STSBenchmark",
     "STSBenchmarkConfig",
+    "ViHSDBenchmark",
+    "ViHSDBenchmarkConfig",
 ]

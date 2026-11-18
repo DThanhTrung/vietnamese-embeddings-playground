@@ -1,0 +1,19 @@
+dataset:
+  name: GreenNode/sickr-sts-vn
+  config_name: default
+  train_split: test
+  dev_split: test
+  test_split: test
+
+benchmark:
+  name: sickr-sts-vn
+  text_a_column: sentence1
+  text_b_column: sentence2
+  score_column: score
+
+model:
+  model_name: BAAI/bge-m3
+  adapter_name: sentence-transformers
+  device: cpu
+  batch_size: 32
+  normalize_embeddings: true

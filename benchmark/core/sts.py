@@ -7,89 +7,80 @@ import pandas as pd
 
 from module.embedding import EmbeddingService
 
-from .dataset import DatasetSource
-from .metrics import SpearmanMetric
+from .benchmark import Benchmark
+from ..loader.dataset import DatasetSource
+from ..metrics.metrics import SpearmanMetric
 
 
 @dataclass(frozen=True)
 class STSBenchmarkConfig:
     """Column mapping and name for one STS dataset."""
 
-    name: str
-    text_a_column: str
-    text_b_column: str
-    score_column: str
+    name: str = 'uit-vihsd'
+    text_a_column: str = 'sentence1'
+    text_b_column: str = 'sentence2'
+    score_column: str = 'score'
 
 
-class STSBenchmark:
+class STSBenchmark(Benchmark):
     """Run cosine-similarity based STS evaluation on a dataset source."""
 
     task_name = "sts"
 
     def __init__(
         self,
-        source: DatasetSource,
-        config: STSBenchmarkConfig,
+        train_source: DatasetSource | None = None,
+        dev_source: DatasetSource | None = None,
+        test_source: DatasetSource | None = None,
+        config: STSBenchmarkConfig | None = None,
         metric: SpearmanMetric | None = None,
     ) -> None:
-        self.source = source
-        self.config = config
-        self.metric = metric or SpearmanMetric()
+        super().__init__(
+            config or STSBenchmarkConfig(),
+            metric or SpearmanMetric(),
+            train_source=train_source,
+            dev_source=dev_source,
+            test_source=test_source,
+        )
 
-    def _get_train_subset(
-        self
-    ) -> pd.DataFrame :
-        return self.source.load().head(4500)
-
-
-    def _get_val_subset(
-        self
-    ) -> pd.DataFrame :
-        return self.source.load().head(5000).tail(500)
-
-
-    def _get_test_subset(
-        self
-    ) -> pd.DataFrame :
-        return self.source.load().tail(5000)
-
-
-    def evaluate(
+    def _evaluate(
         self, 
         service: EmbeddingService,
-        subset: str = 'val'
+        subset: str = 'val',
+        *args: object,
+        **kwargs: object,
     ) -> float:
-        if 'train' == subset :
-            data = self._get_train_subset()
-        elif 'val' == subset :
-            data = self._get_val_subset()
-        else :
-            data = self._get_test_subset()
+        if args:
+            raise TypeError("STS accepts only one positional evaluation option: subset")
+        if kwargs:
+            unexpected = ", ".join(sorted(kwargs))
+            raise TypeError(f"Unexpected evaluation options: {unexpected}")
 
-        self._validate_columns(data)
+        if 'train' == subset :
+            data = self.load_train()
+        elif 'val' == subset :
+            data = self.load_val()
+        else :
+            data = self.load_test()
+
+        self._validate_columns(
+            data,
+            {
+                self.config.text_a_column,
+                self.config.text_b_column,
+                self.config.score_column,
+            },
+            self.config.name,
+        )
 
         sentences_a = data[self.config.text_a_column].astype(str).tolist()
         sentences_b = data[self.config.text_b_column].astype(str).tolist()
         gold_scores = data[self.config.score_column].astype(float).to_numpy()
 
-        embeddings_a = service.embed(sentences_a)
-        embeddings_b = service.embed(sentences_b)
+        embeddings_a = self._embed(service, sentences_a)
+        embeddings_b = self._embed(service, sentences_b)
         predicted_scores = self._cosine_similarity(embeddings_a, embeddings_b)
         return self.metric.compute(predicted_scores, gold_scores)
-
-    def _validate_columns(self, data: pd.DataFrame) -> None:
-        required = {
-            self.config.text_a_column,
-            self.config.text_b_column,
-            self.config.score_column,
-        }
-        missing = sorted(required.difference(data.columns))
-        if missing:
-            raise ValueError(
-                f"Benchmark '{self.config.name}' is missing columns: {', '.join(missing)}"
-            )
-        if data.empty:
-            raise ValueError(f"Benchmark '{self.config.name}' contains no examples")
 
     @staticmethod
     def _cosine_similarity(
