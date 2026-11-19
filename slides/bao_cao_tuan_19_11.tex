@@ -1,0 +1,305 @@
+\documentclass[aspectratio=169,10pt]{beamer}
+
+\usepackage{fontspec}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usetikzlibrary{positioning}
+
+\setsansfont{DejaVu Sans}
+\setmonofont{DejaVu Sans Mono}[Scale=MatchLowercase]
+
+\definecolor{teal}{HTML}{087F82}
+\definecolor{tealDark}{HTML}{05565B}
+\definecolor{tealLight}{HTML}{DDF3F0}
+\definecolor{mint}{HTML}{B7E5DE}
+\definecolor{ink}{HTML}{12343B}
+\definecolor{coral}{HTML}{FFB38A}
+
+\usetheme{default}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{blocks}[rounded][shadow=false]
+\setbeamercolor{normal text}{fg=white,bg=teal}
+\setbeamercolor{structure}{fg=mint}
+\setbeamercolor{footline}{bg=tealDark,fg=white}
+\setbeamercolor{frametitle}{fg=ink,bg=mint}
+\setbeamercolor{block title}{fg=ink,bg=mint}
+\setbeamercolor{block body}{fg=ink,bg=tealLight}
+\setbeamercolor{alerted text}{fg=coral}
+\setbeamerfont{frametitle}{size=\Large,series=\bfseries}
+\setbeamerfont{title}{size=\LARGE,series=\bfseries}
+\setbeamerfont{subtitle}{size=\large}
+\setbeamertemplate{itemize item}{\color{coral}\small$\blacktriangleright$}
+\setbeamertemplate{itemize subitem}{\color{mint}\scriptsize$\blacktriangleright$}
+
+% PLACEHOLDER: thay hai gia tri nay truoc khi trinh bay.
+\newcommand{\AuthorName}{Đỗ Thành Trung}
+\newcommand{\UniversityName}{IAI, UET - VNU}
+\newcommand{\DeckTitle}{Đánh giá các mô hình nhúng \\ cho tiếng Việt}
+
+\setbeamertemplate{footline}{%
+	\leavevmode\hbox{%
+		\begin{beamercolorbox}[wd=.78\paperwidth,ht=2.8ex,dp=1.2ex,leftskip=1.2em]{author in head/foot}%
+			\scriptsize\UniversityName
+		\end{beamercolorbox}%
+		\begin{beamercolorbox}[wd=.22\paperwidth,ht=2.8ex,dp=1.2ex,rightskip=1.2em plus 1fil]{date in head/foot}%
+			\scriptsize\hfill\insertframenumber~/~\inserttotalframenumber
+		\end{beamercolorbox}}%
+}
+
+\title{\DeckTitle}
+\author{\AuthorName}
+\institute{\UniversityName}
+\date{\today}
+
+\AtBeginSection[]{
+    \begin{frame}{Nội dung trình bày}
+        \setbeamertemplate{section in toc}[sections numbered]
+        \setbeamerfont{section in toc}{series=\bfseries}
+        \setbeamerfont{section in toc shaded}{series=\normalfont}
+        \tableofcontents[currentsection]
+    \end{frame}
+}
+
+\begin{document}
+
+\begin{frame}[plain]
+    \begin{tikzpicture}[remember picture,overlay]
+        \fill[tealDark] (current page.south west) rectangle (current page.north east);
+        \fill[mint,opacity=.12] (current page.north east) circle (3.2cm);
+        \fill[coral,opacity=.16] (current page.south west) circle (2.4cm);
+    \end{tikzpicture}
+    \vfill
+    {\usebeamerfont{title}\color{white}\DeckTitle\par}
+    \vspace{0.35cm}
+    {\usebeamerfont{subtitle}\color{mint}\insertsubtitle\par}
+    \vspace{1.1cm}
+    \begin{tabular}{@{}ll@{}}
+        Người trình bày: & \textbf{\AuthorName}     \\
+        Đơn vị:          & \textbf{\UniversityName}
+    \end{tabular}
+    \vfill
+    \color{mint}\small\insertdate
+\end{frame}
+
+\begin{frame}{Nội dung trình bày}
+    \setbeamertemplate{section in toc}[sections numbered]
+    \tableofcontents
+\end{frame}
+
+\section{Tổng quan}
+\begin{frame}{Phạm vi báo cáo}
+    \begin{block}{Tổng quan}
+        Tổng hợp một số bộ dữ liệu có nhiễu hay được sử dụng, một số mô hình \\ tạo vector nhúng và nêu hướng thực nghiệm tiếp theo.
+    \end{block}
+    \begin{enumerate}
+        \item Các phương pháp phổ biến để đánh giá mô hình nhúng.
+        \item Một số mô hình thường được sử dụng.
+        \item Một số công việc kĩ thuật đã thực hiện.
+        \item Đề xuất hướng đi tiếp theo.
+    \end{enumerate}
+\end{frame}
+
+% \begin{frame}{Pipeline dữ liệu và benchmark STS}
+%     \begin{columns}[T,onlytextwidth]
+%         \column{.45\textwidth}
+%         \begin{block}{Luồng xử lý}
+%             \begin{enumerate}
+%                 \item Đọc file local và lọc split nếu cần.
+%                 \item Chuẩn hóa hai cột câu và một cột điểm vàng.
+%                 \item Encode hai phía bằng cùng một service.
+%                 \item Tính cosine similarity.
+%                 \item Đo tương quan Spearman với đánh giá con người.
+%             \end{enumerate}
+%         \end{block}
+%         \column{.51\textwidth}
+%         \begin{block}{Cấu hình hiện tại}
+%             \small
+%             \texttt{dataset}: path, format, delimiter, split\\[0.15cm]
+%             \texttt{benchmark}: text\_a, text\_b, score\\[0.15cm]
+%             \texttt{model}: model\_name, adapter, device, batch\_size
+%         \end{block}
+%         \begin{alertblock}{Ý nghĩa}
+%             Thay dataset hoặc model không làm thay đổi logic benchmark.
+%         \end{alertblock}
+%     \end{columns}
+% \end{frame}
+
+% \begin{frame}{Một số lưu ý trước khi chạy}
+%     \begin{block}{Tách từ tiếng Việt}
+%         Một số mô hình yêu cầu tách từ và thêm dấu ``\_'' bằng \texttt{pyvi} hoặc \texttt{underthesea} trước khi đưa vào embedding.
+%     \end{block}
+%     \begin{block}{Mô hình đa ngữ}
+%         Các mô hình đa ngữ thường nhận câu nguyên bản, không cần tách từ thủ công.
+%     \end{block}
+%     \begin{alertblock}{Asymmetric Retrieval}
+%         Với E5, BGE và các mô hình hiện đại tương tự, khi đánh giá Retrieval cần dùng đúng tiền tố: \texttt{query: } cho câu hỏi và \texttt{passage: } cho đoạn văn.
+%     \end{alertblock}
+% \end{frame}
+
+\section{Các mô hình nhúng phổ biến}
+\begin{frame}{Các mô hình tiếng Việt}
+    \scriptsize
+    \renewcommand{\arraystretch}{1.55}
+    \begin{tabular}{@{}p{0.45\textwidth}p{0.12\textwidth}p{0.12\textwidth}p{0.20\textwidth}@{}}
+        \textbf{Mô hình}                                      & \textbf{Tham số}    & \textbf{Số chiều ẩn} & \textbf{Dung lượng mô hình} \\
+        \midrule
+        \texttt{AITeamVN/Vietnamese\_Embedding}               & \textasciitilde568M & 1024                 & 2{,}17 GB                   \\
+        \texttt{dangvantuan/vietnamese-embedding}             & \textasciitilde135M & 768                  & 515 MB                      \\
+        \texttt{bkai-foundation-models/vietnamese-bi-encoder} & \textasciitilde135M & 768                  & 515 MB                      \\
+        \texttt{contextboxai/halong\_embedding}               & \textasciitilde278M & 768                  & 1{,}06 GB                   \\
+        \texttt{vinai/phobert-base-v2}                        & \textasciitilde135M & 768                  & 515 MB                      \\
+        \bottomrule
+    \end{tabular}
+\end{frame}
+
+\begin{frame}{Các mô hình đa ngữ}
+    \scriptsize
+    \renewcommand{\arraystretch}{1.55}
+    \begin{tabular}{@{}p{0.45\textwidth}p{0.12\textwidth}p{0.12\textwidth}p{0.20\textwidth}@{}}
+        \textbf{Mô hình}                           & \textbf{Tham số}    & \textbf{Số chiều ẩn} & \textbf{Dung lượng mô hình} \\
+        \midrule
+        \texttt{Alibaba-NLP/gte-multilingual-base} & \textasciitilde305M & 768                  & 582 MB                      \\
+        \texttt{BAAI/bge-m3}                       & \textasciitilde568M & 1024                 & 2{,}17 GB                   \\
+        \texttt{intfloat/multilingual-e5-base}     & \textasciitilde278M & 768                  & 1{,}06 GB                   \\
+        \shortstack[l]{\texttt{sentence-transformers/}                                                                        \\\texttt{paraphrase-multilingual-mpnet-base-v2}} & \textasciitilde278M & 768 & 1{,}06 GB\\
+        \bottomrule
+    \end{tabular}
+\end{frame}
+
+\section{Một số thang đo dữ liệu có nhiễu}
+\begin{frame}{Dữ liệu viết tắt, ký tự đặc biệt, sai chính tả, không dấu}
+    \begin{block}{Dữ liệu mạng xã hội}
+        \begin{itemize}
+            \item \textbf{UIT-ViHSD}: bình luận Facebook, 3 mức độ thù địch, nhiều teencode.
+            \item \textbf{UIT-VSMEC}: cảm xúc mạng xã hội, câu thiếu ngữ cảnh và viết tắt.
+            \item \textbf{ViSpamReviews}: phát hiện đánh giá spam trên sàn thương mại điện tử.
+            \item \textbf{VMDS}: cặp câu sai chính tả và câu đã sửa, đo độ bền vững.
+        \end{itemize}
+    \end{block}
+    \begin{block}{Nhận xét}
+        Dữ liệu lệch khỏi văn phong tiền huấn luyện, có thể dùng làm phép đo \\ khả năng khái quát.
+    \end{block}
+\end{frame}
+
+\begin{frame}{Dữ liệu gồm nhiều thuật ngữ chuyên ngành khó}
+    \begin{block}{Dữ liệu khoa học}
+        \begin{itemize}
+            \item \textbf{CQADupstack-VN (GreenNote)}: Truy xuất câu trả lời trên diễn đàn; câu hỏi và văn bản trộn chữ, code, log, công thức toán học, ...
+            \item \textbf{Touche2020-VN và ArguAna-VN}: Truy xuất văn bản phản biện hoặc ủng hộ luận điểm. Văn bản có thể chỉ khác luận điểm đúng một chữ.
+            \item \textbf{SciDocsRR-VN và SciFact-VN}: Các mẫu dương và âm gần giống hệt nhau, các văn bản gồm nhiều thuật ngữ chuyên ngành.
+        \end{itemize}
+    \end{block}
+    \begin{block}{Nhận xét}
+        Dữ liệu gồm nhiều từ ngữ hoặc văn bản chuyên ngành, mô hình nhúng chỉ tạo một vector khó biểu diễn ngữ cảnh.
+    \end{block}
+\end{frame}
+
+\begin{frame}{Dữ liệu có cấu trúc văn bản khó}
+    \begin{block}{Dữ liệu phản biện}
+        \begin{itemize}
+            \item \textbf{ViNLI}: Cặp tiền đề và giả thuyết được gán nhãn \textit{entailment}, \textit{neutral} hoặc \textit{contradiction}.
+        \end{itemize}
+    \end{block}
+    \begin{block}{Nhận xét}
+        Các văn bản đối lập vẫn có thể trùng lặp nhiều từ. Mô hình cần hiểu quan hệ và ngữ cảnh, không chỉ đếm mức độ giống bề mặt.
+    \end{block}
+\end{frame}
+
+\section{Các thang đo đánh giá}
+\begin{frame}{Các nhóm thang đo chính}
+    \begin{itemize}
+        \item \textbf{STS (Semantic Textual Similarity)}: Tính tương quan Pearson/Spearman.
+        \item \textbf{Retrieval / Reranking}: Tính độ đo MRR@k, NDCG@k của kết quả truy hồi.
+        \item \textbf{Classification}: Dùng mô hình phân loại đơn giản (Logistic Regression) trên không gian nhúng.
+        \item \textbf{Pair Classification}: Đo mức độ đồng nghĩa, trung tính, trái nghĩa.
+        \item \textbf{Clustering}: Sử dụng thước đo V-measure.
+        \item \textbf{Intrinsic geometry}: Kiểm tra tính đẳng hướng trong không gian, tránh hiện tượng sụp đổ biểu diễn.
+
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{STS, Retrieval và các tác vụ giám sát}
+    \begin{block}{Semantic Textual Similarity (STS)}
+        So sánh và chấm điểm cho từng cặp câu, điểm số được đối chiếu với điểm con người bằng tương quan Pearson hoặc Spearman.
+    \end{block}
+    \begin{block}{Retrieval / Reranking}
+        Tập trung so sánh vector nhúng của câu hỏi với tài liệu, thường dùng để đánh giá độ chính xác với ngữ cảnh dài.
+    \end{block}
+    \begin{block}{Classification}
+        Trực giác: Nếu không gian nhúng tách biệt các chủ đề tốt, mô hình tuyến tính đơn giản cũng có thể đạt hiệu suất cao.
+    \end{block}
+\end{frame}
+
+\begin{frame}{Clustering}
+    \begin{block}{Clustering}
+        Phân cụm với số cụm bằng số nhãn đúng, rồi đo chỉ số V-measure:
+        \[
+            V = 2\cdot\frac{h\cdot c}{h+c}
+        \]
+        \small
+        \textbf{Homogeneity} $h$: Cao khi các điểm trong cùng cụm có cùng lớp.\\
+        \textbf{Completeness} $c$: Cao khi các điểm trong cùng lớp được đặt trong cùng cụm.
+    \end{block}
+\end{frame}
+
+\begin{frame}{Đánh giá nội tại không gian nhúng}
+    \begin{block}{Tính liên kết: các câu cùng nghĩa nằm gần nhau}
+        \[
+            \mathcal{L}_{\mathrm{align}} = \mathbb{E}_{(x,x^+)}\left[\left\|f(x)-f(x^+)\right\|_2^2\right]
+        \]
+        Giá trị càng nhỏ càng tốt.
+    \end{block}
+    \begin{block}{Tính phân bố đều: vector phân bố đều trên mặt cầu đơn vị}
+        \[
+            \mathcal{L}_{\mathrm{uniform}} = \log\mathbb{E}_{x,y\sim p_{\mathrm{data}}}\left[e^{-2\left\|f(x)-f(y)\right\|_2^2}\right]
+        \]
+        Giá trị càng nhỏ/càng âm càng tốt, tránh sụp đổ biểu diễn hoặc \\ các vector chụm thành "hình nón hẹp".
+    \end{block}
+\end{frame}
+
+\section{Các kiến trúc đã triển khai}
+\begin{frame}{Các kiến trúc đã triển khai}
+    \centering
+    \begin{columns}[T,onlytextwidth]
+        \column{.48\textwidth}
+        \begin{block}{Thiết kế giao diện gọi mô hình}
+            \begin{itemize}
+                \item Viết giao diện để gọi mô hình, \\ sử dụng API của thư viện \texttt{sentence-transformers}.
+                \item Hỗ trợ tiền xử lý cho từng mô hình trước khi chạy.
+            \end{itemize}
+        \end{block}
+        \column{.48\textwidth}
+        \begin{block}{Giao diện sử dụng dữ liệu}
+            \begin{itemize}
+                \item Hỗ trợ sử dụng dữ liệu từ API của \texttt{datasets}, gọi từ máy cá nhân hoặc URI.
+                \item Chạy một số benchmark đơn giản trên các bộ dữ liệu nhỏ.
+            \end{itemize}
+        \end{block}
+    \end{columns}
+\end{frame}
+
+\section{Lộ trình tiếp theo}
+\begin{frame}{Tiến hành đánh giá kết quả các mô hình và \\ tìm các trường hợp biên}
+    \begin{enumerate}
+        \item Chuẩn hóa giao diện gọi các mô hình và bộ dữ liệu khác nhau.
+        \item Chạy kết quả trên một số thang đo đánh giá khác nhau và \\ tổng hợp kết quả.
+        \item Phân tích tính đẳng hướng, kiểm tra hiện tượng sụp đổ biểu diễn.
+        \item Tìm và phân tích các trường hợp biên mà mô hình gặp khó.
+    \end{enumerate}
+\end{frame}
+
+% \begin{frame}[plain]
+%     \centering
+%     \vfill
+%     {\usebeamerfont{title}\color{white}Cảm ơn mọi người đã lắng nghe}\par
+%     \vspace{0.4cm}
+%     {\large\color{mint}\DeckTitle}\par
+%     \vspace{0.8cm}
+%     \textbf{\AuthorName}\\
+%     \UniversityName
+%     \vfill
+% \end{frame}
+
+\end{document}
