@@ -44,3 +44,4 @@ plotly>=5.24.1
 tqdm>=4.67.1
 rich>=13.9.4
 pyyaml>=6.0.2
+requests>=2.34.2

@@ -1,0 +1,64 @@
+== TỔNG KẾT THU THẬP WIKIDATA ==
+Tổng bản ghi (item x thuộc tính x giá trị): 38502
+
+== Theo thuộc tính ==
+  P1813 (Tên viết tắt): 20053 thực thể
+  P2218 (Mã ISO 4217): 1 thực thể
+  P238 (Mã sân bay IATA): 7234 thực thể
+  P246 (Ký hiệu nguyên tố): 175 thực thể
+  P249 (Mã niêm yết chứng khoán): 173 thực thể
+  P297 (Mã quốc gia ISO 2 ký tự): 207 thực thể
+  P300 (Mã ISO 3166-2): 168 thực thể
+  P395 (Mã quốc gia ISO số): 7260 thực thể
+  P424 (Mã ngôn ngữ): 775 thực thể
+  P528 (Mã sàn giao dịch chứng khoán): 2456 thực thể
+
+== Theo nhóm ==
+  academic_degree: 416 cặp (item, thuộc tính)
+  airport: 8593 cặp (item, thuộc tính)
+  chemical_element: 176 cặp (item, thuộc tính)
+  currency: 84 cặp (item, thuộc tính)
+  file_format: 74 cặp (item, thuộc tính)
+  government_agency: 13678 cặp (item, thuộc tính)
+  language: 1406 cặp (item, thuộc tính)
+  ngo: 8876 cặp (item, thuộc tính)
+  public_company: 726 cặp (item, thuộc tính)
+  sovereign_state: 827 cặp (item, thuộc tính)
+  stock_exchange: 362 cặp (item, thuộc tính)
+  university: 3284 cặp (item, thuộc tính)
+
+== Theo (nhóm, thuộc tính) ==
+  academic_degree    | P1813  |   415 thực thể
+  academic_degree    | P528   |     1 thực thể
+  airport            | P1813  |  1366 thực thể
+  airport            | P238   |  7225 thực thể
+  airport            | P528   |     2 thực thể
+  chemical_element   | P1813  |     1 thực thể
+  chemical_element   | P246   |   175 thực thể
+  currency           | P1813  |    79 thực thể
+  currency           | P249   |     4 thực thể
+  currency           | P528   |     1 thực thể
+  file_format        | P1813  |    70 thực thể
+  file_format        | P528   |     4 thực thể
+  government_agency  | P1813  |  5061 thực thể
+  government_agency  | P238   |     9 thực thể
+  government_agency  | P300   |   122 thực thể
+  government_agency  | P395   |  7066 thực thể
+  government_agency  | P528   |  1420 thực thể
+  language           | P1813  |   631 thực thể
+  language           | P424   |   775 thực thể
+  ngo                | P1813  |  8227 thực thể
+  ngo                | P2218  |     1 thực thể
+  ngo                | P300   |     1 thực thể
+  ngo                | P528   |   647 thực thể
+  public_company     | P1813  |   516 thực thể
+  public_company     | P249   |   169 thực thể
+  public_company     | P528   |    41 thực thể
+  sovereign_state    | P1813  |   381 thực thể
+  sovereign_state    | P297   |   207 thực thể
+  sovereign_state    | P300   |    45 thực thể
+  sovereign_state    | P395   |   194 thực thể
+  stock_exchange     | P1813  |    26 thực thể
+  stock_exchange     | P528   |   336 thực thể
+  university         | P1813  |  3280 thực thể
+  university         | P528   |     4 thực thể

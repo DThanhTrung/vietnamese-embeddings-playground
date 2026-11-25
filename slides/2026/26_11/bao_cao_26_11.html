@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Báo cáo tuần 26/11/2026</title>
+<style>
+  :root{
+    /* ---- màu ---- */
+    --teal:#087F82;
+    --tealDark:#05565B;
+    --tealLight:#DDF3F0;
+    --mint:#B7E5DE;
+    --ink:#12343B;
+    --coral:#FFB38A;
+    --cream:#FBFCFB;
+
+    /* ---- CỠ CHỮ ----
+       Biến gốc: --font-scale (1 = 100%, 1.15 = +15%).
+       Tất cả cỡ chữ bên dưới đều = giá trị gốc × --font-scale.
+       Muốn phóng to / thu nhỏ toàn deck CHỈ cần sửa --font-scale. */
+    --font-scale: .95;          /* 1 = gốc, tăng để phóng to */
+    --font-title-page: calc(3.2rem * var(--font-scale)); /* chữ lớn trang bìa (h1) */
+    --font-kicker: calc(1rem * var(--font-scale));       /* nhãn "BÁO CÁO TIẾN ĐỘ" */
+    --font-author: calc(1.4rem * var(--font-scale));     /* tên tác giả trang bìa */
+    --font-meta: calc(1.1rem * var(--font-scale));       /* ngày / trường trên bìa */
+
+    --font-h2: calc(2.1rem * var(--font-scale));         /* tiêu đề mỗi slide */
+    --font-h2-en: calc(1.05rem * var(--font-scale));     /* phụ đề tiếng Anh dưới h2 */
+    --font-h3: calc(1.3rem * var(--font-scale));         /* tiêu đề nhỏ (h3) */
+    --font-h4: calc(1.2rem * var(--font-scale));         /* tiêu đề trong card */
+    --font-body: calc(1.18rem * var(--font-scale));      /* đoạn văn p */
+    --font-li: calc(1.16rem * var(--font-scale));        /* mục bullet li */
+    --font-card-p: calc(1.1rem * var(--font-scale));     /* chữ trong card */
+    --font-note: calc(1.16rem * var(--font-scale));      /* khối ghi chú */
+    --font-formula: calc(1.1rem * var(--font-scale));    /* khối công thức */
+    --font-tag: calc(.82rem * var(--font-scale));        /* nhãn tag nhỏ */
+    --font-muted: calc(.98rem * var(--font-scale));      /* chữ mờ phụ */
+    --font-pageno: calc(1rem * var(--font-scale));    /* chữ đánh số trang ở dưới */
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:"Segoe UI", "DejaVu Sans", system-ui, sans-serif;
+    background:linear-gradient(135deg,#0b5e63,#05635f);
+    color:var(--ink);
+    overflow:hidden;
+  }
+
+  /* ---------- deck ---------- */
+  #deck{height:100vh;position:relative;}
+  .slide{
+    position:absolute;inset:0;
+    height:100%;
+    display:none;
+    flex-direction:column;
+    padding:4.5vh 6vw 7vh;
+    background:var(--cream);
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .slide.now{display:flex;animation:slideIn .38s ease both;}
+  @keyframes slideIn{
+    from{opacity:0;transform:translateX(40px);}
+    to{opacity:1;transform:translateX(0);}
+  }
+
+  /* ---------- title slide ---------- */
+  .slide.title{
+    background:linear-gradient(140deg,#0a5b60 0%,#0d7a76 55%,#0e8f86 100%);
+    color:#fff;
+  }
+  .slide.title.now{
+    display:flex;
+    animation:fadeUp .55s ease both;
+  }
+  .slide.title .inner{
+    margin:auto;max-width:1100px;text-align:center;
+    animation:fadeUp .7s ease both;
+  }
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+  .kicker{
+    display:inline-block;letter-spacing:.22em;font-size:var(--font-kicker);
+    text-transform:uppercase;color:var(--mint);
+    border:1px solid rgba(255,255,255,.45);padding:.45em 1.1em;border-radius:999px;
+    margin-bottom:1.6em;
+  }
+  .slide.title h1{
+    font-size:var(--font-title-page);line-height:1.25;font-weight:800;
+    text-shadow:0 2px 14px rgba(0,0,0,.25);
+  }
+  .title-rule{width:110px;height:5px;background:var(--coral);border-radius:2px;margin:1.1em auto;}
+  .author{
+    font-size:var(--font-author);color:#eaffe9;margin-top:.4em;
+    display:flex;justify-content:center;gap:.6em;align-items:center;flex-wrap:wrap;
+  }
+  .author b{color:#fff;}
+  .meta{display:flex;gap:1.8em;justify-content:center;flex-wrap:wrap;margin-top:1.5em;}
+  .meta div{font-size:var(--font-meta);}
+  .meta svg{vertical-align:-.15em;margin-right:.35em;}
+
+  /* ---------- content slide generic ---------- */
+  .wrap{
+    max-width:1150px;width:100%;margin:0 auto;
+    flex:1 0 auto;
+    display:flex;flex-direction:column;
+  }
+  .wrap > h2{margin-bottom:.8rem;}
+  /* tiêu đề giữ nguyên ở trên; phần nội dung (từ phần tử thứ 2 trở đi) căn giữa dọc */
+  .wrap > *:nth-child(2){margin-top:auto;}
+  .wrap > *:last-child{margin-bottom:auto;}
+  h2{
+    font-size:var(--font-h2);font-weight:800;color:var(--tealDark);
+    border-left:7px solid var(--coral);padding-left:.7em;margin-bottom:1rem;
+    animation:fadeUp .5s ease both;
+  }
+  h2 .en{display:block;font-size:var(--font-h2-en);color:var(--teal);font-weight:600;letter-spacing:.05em;}
+  section{margin-bottom:1.6rem;animation:fadeUp .5s ease both;}
+  section:nth-child(2){animation-delay:.06s;}
+  section:nth-child(3){animation-delay:.12s;}
+  section:nth-child(4){animation-delay:.18s;}
+  h3{
+    font-size:var(--font-h3);color:var(--teal);margin-bottom:.45rem;font-weight:700;
+  }
+  p{line-height:1.6;font-size:var(--font-body);}
+  ul{list-style:none;}
+  li{padding-left:1.3em;line-height:1.55;margin:.35em 0;position:relative;font-size:var(--font-li);}
+  li:before{content:"";position:absolute;left:0;top:.52em;width:.5em;height:.5em;background:var(--teal);border-radius:2px;transform:rotate(45deg);}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.1rem;margin-top:.3rem;}
+  .card{
+    background:#fff;border:1px solid var(--mint);border-radius:12px;
+    padding:1rem 1.1rem;box-shadow:0 3px 10px rgba(8,127,130,.08);
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .card:hover{transform:translateY(-3px);box-shadow:0 8px 18px rgba(8,127,130,.16);}
+  .card h4{font-size:var(--font-h4);color:var(--tealDark);margin-bottom:.4rem;}
+  .card p{font-size:var(--font-card-p);color:#2c4a50;}
+  .tag{
+    display:inline-block;font-size:var(--font-tag);font-weight:700;letter-spacing:.05em;
+    padding:.2em .7em;border-radius:999px;background:var(--tealLight);color:var(--tealDark);
+    margin-bottom:.5rem;text-transform:uppercase;
+  }
+  .score{width:80px;height:8px;background:#e6eef0;border-radius:4px;overflow:hidden;margin-top:.5rem;}
+  .score i{display:block;height:100%;border-radius:4px;background:var(--teal);}
+
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem 2rem;}
+  .col p,.col li{font-size:var(--font-body);}
+
+  .note{
+    background:var(--tealLight);border-left:4px solid var(--teal);
+    border-radius:8px;padding:.9rem 1.2rem;color:var(--tealDark);
+    line-height:1.6;font-size:var(--font-note);
+  }
+  /* ---- biểu đồ phân phối nhóm ---- */
+  .bar-chart{display:flex;flex-direction:column;gap:.5rem;}
+  .bar-row{display:flex;align-items:center;gap:.9rem;}
+  .bar-label{flex:0 0 20rem;text-align:right;font-weight:600;font-size:var(--font-card-p);color:var(--ink);
+       white-space:nowrap;}
+  .bar{position:relative;height:1.6rem;border-radius:6px;flex:1;min-width:0;
+       background:var(--tealLight);overflow:hidden;}
+  .bar::before{content:'';position:absolute;inset:0;border-radius:6px;width:var(--v,0%);
+       background:linear-gradient(90deg,var(--teal),var(--tealDark));}
+  .bar-val{flex:0 0 5.2rem;font-weight:700;
+       font-size:var(--font-body);color:var(--tealDark);}
+  .formula{
+    background:#0b5e63;color:#eafff7;border-radius:10px;
+    padding:1rem 1.1rem;font-family:"DejaVu Sans Mono",Consolas,monospace;
+    font-size:var(--font-formula);line-height:1.7;overflow-x:auto;
+  }
+  .formula b{color:var(--coral);}
+  .good{color:#15803d;font-weight:600;}      /* mức CAO — phối mới */
+  .normal{color:#0e7a5e;font-weight:600;}    /* mức KHÁ — dùng đúng mã màu .good cũ */
+  .bad{color:#c0392b;font-weight:600;}
+  .muted{
+    color:#9a6b00;
+    font-weight:600;
+    /* font-size:var(--font-muted); */
+  }
+
+  /* bảng ví dụ so sánh STS-B vs SICK-R */
+  .ex{margin-top:1.2rem;}
+  .ex h3{font-size:var(--font-h3);color:var(--tealDark);margin-bottom:.6rem;}
+  table.ex{width:100%;border-collapse:collapse;font-size:calc(var(--font-body) - .02rem);}
+  table.ex th,table.ex td{
+    border:1px solid var(--mint);padding:.55em .8em;text-align:left;
+    vertical-align:top;line-height:1.5;
+  }
+  table.ex th{
+    background:var(--tealDark);color:#fff;font-weight:700;
+    font-size:calc(var(--font-body) - .08rem);
+  }
+  table.ex tr:nth-child(even) td{background:#f4fafa;}
+  table.ex td.pair{font-size:calc(var(--font-body) - .06rem);}
+  table.ex td em{display:block;color:#5c7a80;font-size:calc(var(--font-body) - .12rem);margin-top:.1em;}
+  .pill{
+    display:inline-block;font-weight:700;padding:.12em .6em;border-radius:999px;font-size:var(--font-tag);
+  }
+  .pill.good{background:#dcfce7;}        /* nền phối mới cho mức CAO */
+  .pill.normal{background:#dbf3e9;}      /* nền dùng đúng mã màu .good cũ */
+  .pill.ok{background:#fff3d6;color:#9a6b00;}
+  .pill.bad{background:#fbe0dd;}
+  .pill.none{background:#e7edef;color:#5c7a80;}
+
+  /* dải thang điểm đo lường */
+  .scale{display:flex;flex-direction:column;gap:.55rem;margin-top:.2rem;}
+  .srow{display:flex;align-items:center;gap:.9rem;}
+  .srow .snum{
+    flex:0 0 2.3rem;height:2.3rem;border-radius:.55rem;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;color:#fff;font-size:var(--font-body);box-shadow:0 2px 5px rgba(0,0,0,.12);
+  }
+  .srow .txt{line-height:1.35;}
+  .srow .txt b{color:var(--tealDark);}
+  .srow .txt .sc-desc{color:#5c7a80;font-size:calc(var(--font-body) - .06rem);}
+  .snum.s5{background:#15803d;}
+  .snum.s4{background:#65a30d;}
+  .snum.s3{background:#d97706;}
+  .snum.s2{background:#ea580c;}
+  .snum.s1{background:#dc2626;}
+  .snum.s0{background:#7f1d1d;}
+
+  /* thẻ ví dụ 4 quy tắc gán điểm (slide ví dụ minh họa) */
+  .excards{display:flex;flex-direction:column;gap:1.1rem;margin-top:.5rem;}
+  .excard{
+    background:#fff;border:2px solid var(--mint);border-left:9px solid var(--teal);
+    border-radius:12px;padding:1.1rem 1.4rem;box-shadow:0 3px 10px rgba(8,127,130,.10);
+    display:flex;flex-direction:column;gap:.7rem;
+  }
+  .excard .lvl{
+    display:flex;justify-content:space-between;align-items:center;
+    font-weight:800;color:var(--tealDark);font-size:calc(var(--font-h3) + .05rem);
+  }
+  .excard .lvl .pill{font-size:var(--font-h4);}
+  .excard .sent{font-size:var(--font-body);line-height:1.6;color:#2c4a50;}
+  .excard .sent b{color:var(--tealDark);}
+  .excard .why{
+    margin-top:auto;font-size:var(--font-body);color:#5c7a80;
+    border-top:1px dashed var(--mint);padding-top:.6rem;
+  }
+
+  /* ---------- progress + page number ---------- */
+  .page{
+    position:absolute;bottom:2vh;right:2.2vw;z-index:5;
+    color:var(--ink);font-size:var(--font-pageno);font-weight:700;letter-spacing:.04em;
+  }
+  .progress{position:absolute;bottom:0;left:0;height:4px;background:var(--coral);z-index:6;transition:width .3s ease;}
+
+  /* ---------- controls ---------- */
+  .arrow{
+    position:absolute;top:50%;transform:translateY(-50%);
+    z-index:5;background:rgba(11,94,99,.85);color:#fff;border:none;
+    width:44px;height:44px;border-radius:50%;cursor:pointer;font-size:1.3rem;
+    opacity:0;transition:opacity .25s ease;box-shadow:0 3px 10px rgba(0,0,0,.2);
+  }
+  .arrow:hover{opacity:.9;}
+  #prev{left:1vw;}
+  #next{right:1vw;}
+  body:hover .arrow{opacity:.55;}
+
+  @media(max-width:900px){
+    .two{grid-template-columns:1fr;}
+    .slide.title h1{font-size:calc(1.9rem * var(--font-scale));}
+  }
+</style>
+</head>
+<body>
+<div id="deck">
+
+  <!-- ============ SLIDE 1 : Title ============ -->
+  <section class="slide title now">
+    <div class="inner">
+      <span class="kicker">Báo cáo tiến độ &nbsp;·&nbsp; Tuần 26/11</span>
+      <h1>Xây dựng dữ liệu cặp câu viết tắt<br>đánh giá độ bền vững của <br> mô hình embedding</h1>
+      <div class="title-rule"></div>
+      <div class="author">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>
+        <b>Đỗ Thành Trung</b>
+      </div>
+      <div class="meta">
+        <div>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          26 / 11 / 2026
+        </div>
+        <div>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg>
+          IAI - UET, VNU
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 2 : Định hướng ============ -->
+  <section class="slide">
+    <div class="wrap">
+      <h2>Mục tiêu và nhiệm vụ chính</h2>
+      <section>
+        <h3>Mục tiêu</h3>
+        <p>Xây dựng <b>dữ liệu chứa các cặp câu</b> (trong đó có <b>từ viết tắt</b>) để
+        so sánh và đánh giá độ <b>bền vững</b> của mô hình embedding và dự đoán độ liên quan giữa các câu.</p>
+      </section>
+      <section>
+        <h3>Vì sao là từ viết tắt?</h3>
+        <p>Các mô hình ngôn ngữ thường nhạy cảm với phép viết tắt.
+          <ul>
+            <li>Hiệu năng giảm rõ rệt khi truy xuất dữ liệu bao gồm chữ viết tắt</li>
+            <li>Dễ nhầm lẫn giữa các thực thể tương tự nhau</li>
+          </ul>
+        </p>
+      </section>
+      <section>
+        <div class="card">
+          <h4>Nhiệm vụ chính</h4>
+          <p> 
+            <ul>
+              <li>Xây dựng bộ dữ liệu đánh giá vấn đề viết tắt</li>
+              <li>Đánh giá hiệu năng của các mô hình trên tập dữ liệu này</li>
+            </ul> </p>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 3 : STS-B vs SICK-R ============ -->
+  <section class="slide">
+    <div class="wrap">
+      <h2>Sự khác biệt giữa tương đồng và liên quan ngữ nghĩa</h2>
+      <div class="two">
+        <div class="col">
+          <div class="card">
+            <span class="tag">STS Benchmark · STS-B</span>
+            <h3>Đo độ <b>Tương đồng ngữ nghĩa</b> <br> (Semantic Similarity)</h3>
+            <p>Hai câu có <b>cùng ý nghĩa</b> hay không.</p>
+            <div class="score" title="0 - 5"><i style="width:72%"></i></div>
+            <p class="muted">Thang điểm: <b>0 → 5</b></p>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card">
+            <span class="tag">SICK-R</span>
+            <h3>Đo độ <b>Liên quan ngữ nghĩa</b><br> (Semantic Relatedness)</h3>
+            <p>Hai câu có cùng <b>chủ đề / ngữ cảnh</b> với nhau hay không.</p>
+            <div class="score" title="1 - 5"><i style="width:85%"></i></div>
+            <p class="muted">Thang điểm: <b>1 → 5</b></p>
+          </div>
+        </div>
+      </div>
+      <section style="margin-top:1.2rem">
+        <div class="note">
+          Hai câu hoàn toàn có thể <b>trái nghĩa</b>, nhưng nếu <b>cùng chủ đề</b> thì
+          <b>độ liên quan vẫn cao</b> trên SICK-R (dù độ tương đồng trên STS-B thấp).
+        </div>
+      </section>
+
+      <section class="ex">
+        <h3>Ví dụ minh họa</h3>
+        <table class="ex">
+          <thead>
+            <tr>
+              <th style="width:36%">Cặp câu</th>
+              <th style="width:18%">Độ tương đồng</th>
+              <th style="width:18%">Độ liên quan</th>
+              <th>Vì sao?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="pair">
+                (1) “Một người đàn ông đang chơi đàn guitar.”
+                <br>
+                (2) “Một người đàn ông đang gảy những <br> giai điệu trên cây ghi-ta.”
+              </td>
+              <td><span class="pill good">Cao (≈5)</span></td>
+              <td><span class="pill good">Cao (≈5)</span></td>
+              <td>Hai câu nói cùng một sự việc <br> → Giống ý, đồng thời cùng chủ đề.</td>
+            </tr>
+            <tr>
+              <td class="pair">
+                (1) “Hai con chó đang đánh nhau.”
+                <br>
+                (2) “Hai con chó đang vật lộn và ôm ấp nhau.”
+              </td>
+              <td><span class="pill bad">Thấp (≈1)</span></td>
+              <td><span class="pill ok">Khá cao (≈4)</span></td>
+              <td>Mô tả hai hành động khác nhau, nhưng cùng chủ đề.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 4 : 3 hướng xây dựng dữ liệu ============ -->
+  <section class="slide">
+    <div class="wrap">
+      <h2>Ba hướng xây dựng dữ liệu đánh giá</h2>
+      <div class="cards">
+        <div class="card">
+          <span class="tag" style="background:var(--mint)">Hướng 1</span>
+          <h4>Độ <b>liên quan</b> ngữ nghĩa</h4>
+          <p>So sánh mức độ <b>liên quan về chủ đề</b> giữa 2 câu khi có từ viết tắt.<br>
+          <span class="muted">Chuẩn tham chiếu: <b>SICK-R</b>.</span></p>
+        </div>
+        <div class="card">
+          <span class="tag" style="background:var(--mint)">Hướng 2</span>
+          <h4>Độ <b>tương đồng</b> ngữ nghĩa</h4>
+          <p>So sánh mức độ <b>giống về ý nghĩa</b> giữa 2 câu khi có từ viết tắt.<br>
+          <span class="muted">Chuẩn tham chiếu: <b>STS-B</b>.</span></p>
+        </div>
+        <div class="card">
+          <span class="tag" style="background:var(--mint)">Hướng 3</span>
+          <h4>Bộ dữ liệu truy xuất</h4>
+          <p>Gồm danh sách <b>câu hỏi</b> + <b>tài liệu</b>, đo độ chính xác của mô hình khi
+          <b>truy xuất / rerank</b>.</p>
+        </div>
+      </div>
+      <section style="margin-top:1.2rem">
+        <h3>Cách đánh giá</h3>
+        <div class="two">
+          <div>
+            <div class="note">
+              <b>Hướng 1 &amp; 2:</b> đo độ <b>tương quan Spearman</b> giữa điểm dự đoán
+              của mô hình và nhãn thật, tính trên <b>toàn bộ các cặp câu</b>.
+            </div>
+          </div>
+          <div>
+            <div class="note">
+              <b>Hướng 3:</b> đo <b>độ chính xác</b> (accuracy / MRR@k / nDCG@k…) khi mô hình
+              <b>truy xuất &amp; xếp hạng lại</b> các <br> văn bản phù hợp với câu hỏi.
+            </div>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h3 style="margin-top:.5rem">Nguồn dữ liệu</h3>
+        <p>Lấy dữ liệu từ <b>Wikipedia</b> và các nguồn chính thống, dựa trên
+        <b>đường dẫn Wikidata</b> hoặc <b>tên thực thể</b>.</p>
+      </section>
+    
+      <section>
+        <h3 style="margin-top:.5rem">Siêu dữ liệu kèm theo mỗi cặp câu</h3>
+        <div class="two">
+          <div>
+            <ul>
+              <li><b>Dạng viết tắt:</b> <code>MIT</code> / <code>EU</code> / <code>Dr.Sc</code> …</li>
+              <li><b>Tên đầy đủ</b> tương ứng của thực thể.</li>
+              <li><b>Vị trí viết tắt</b> trong câu: đầu / giữa / cuối (kèm chỉ số token).</li>
+            </ul>
+          </div>
+          <div>
+            <ul>
+              <li><b>Thực thể, nhóm</b> (ngành, sân bay, tổ chức…).</li>
+              <li><b>Nguồn:</b> Wikidata ID / bài Wikipedia.</li>
+              <li><b>Độ dài câu</b>, <b>nhãn điểm</b>, <b>cơ chế gán</b> (luật / LLM).</li>
+            </ul>
+          </div>
+        </div>
+        <h3 style="margin-top:.5rem">⟶ Metadata giúp theo dõi và đánh giá riêng theo từng đặc điểm (vd: từ viết tắt ở đầu câu có dễ hơn ở giữa/cuối không?).</h3>
+      </section>
+
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 6 : Xây dựng bộ dữ liệu ============ -->
+  <section class="slide">
+    <div class="wrap">
+      <h2>Hướng 1: Đo độ <i>liên quan</i> ngữ nghĩa của cặp câu</h2>
+      <section>
+        <h3>Quy tắc gán điểm (độ liên quan)</h3>
+        <ul>
+          <li>2 câu <b>cùng thực thể</b>, chỉ <b>paraphrase / tóm tắt / lược bớt thông tin</b>
+              <span class="good">→ điểm CAO</span></li>
+          <li>2 câu <b>cùng thực thể</b>, nhưng <b>khác hành động / sự kiện</b>
+              <span class="normal">→ điểm KHÁ</span></li>
+          <li>2 câu <b>khác thực thể</b>, nhưng <b>cùng nhóm</b>
+              <span class="muted">→ điểm TRUNG BÌNH</span></li>
+          <li>2 câu <b>khác thực thể, khác nhóm</b>
+              <span class="bad">→ điểm KÉM</span></li>
+        </ul>
+      </section>
+
+      <section>
+        <h3>Cơ chế gán điểm</h3>
+        <div class="two">
+          <div class="col">
+            <div class="card">
+              <span class="tag">Theo luật (rule-based)</span>
+              <h4>Dựa trên cấu trúc dữ liệu</h4>
+              <p>Gán điểm từ thông tin có sẵn: cùng/khác thực thể, cùng/khác nhóm.</p>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card">
+              <span class="tag">Dùng LLM</span>
+              <h4>LLM chấm theo rubric</h4>
+              <p>Đưa cặp câu + <b>rubric 1–5</b> vào prompt, LLM gán điểm kèm lý do, mở rộng quy mô dữ liệu dễ dàng.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h3>Thang điểm đo lường độ liên quan <span class="muted" style="font-size:var(--font-muted)">(từ 1 đến 5)</span></h3>
+        <div class="scale">
+          <div class="srow"><span class="snum s5">5</span>
+            <div class="txt"><b>Rất liên quan</b> — cùng thực thể, chỉ paraphrase / tóm tắt / lược bớt thông tin.
+            </div>
+          </div>
+          <div class="srow"><span class="snum s4">4</span>
+            <div class="txt"><b>Liên quan cao</b> — cùng thực thể, nhưng khác hành động / sự kiện.
+          </div></div>
+          <div class="srow"><span class="snum s3">3</span>
+            <div class="txt"><b>Liên quan trung bình</b> — khác thực thể, nhưng cùng nhóm.
+          </div></div>
+          <div class="srow"><span class="snum s2">2</span>
+            <div class="txt"><b>Liên quan thấp</b> — khác thực thể, khác nhóm, chỉ còn nét chung yếu.</div></div>
+          <div class="srow"><span class="snum s1">1</span>
+            <div class="txt"><b>Không liên quan</b> — khác thực thể, khác nhóm, không dính dáng về chủ đề.
+          </div></div>
+        </div>
+      </section>
+
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 8 : Ví dụ các cách ghép câu ============ -->
+  <section class="slide">
+    <div class="wrap">
+      <h2>Ví dụ: các cách ghép câu trong cặp</h2>
+      <div class="excards">
+        <div class="excard">
+          <div class="lvl">① Điểm CAO <span class="pill good">mức tương đồng cao</span></div>
+          <div class="sent"><b>Viện Công nghệ Massachusetts</b> là một viện đại học nghiên cứu tư thục ở thành phố Cambridge, Massachusetts, Hoa Kỳ.</div>
+          <div class="sent"><b>MIT</b> là viện đại học nghiên cứu ở Massachusetts, Hoa Kỳ.</div>
+          <div class="why">Cùng thực thể, câu 2 chỉ tóm tắt / lược bớt thông tin của câu 1.</div>
+        </div>
+        <div class="excard">
+          <div class="lvl">② Điểm KHÁ <span class="pill normal">mức tương đồng khá</span></div>
+          <div class="sent"><b>EU</b> có khoảng 452 triệu dân vào ngày 1 tháng 1 năm 2026.</div>
+          <div class="sent"><b>Liên minh Châu Âu</b> hình thành từ quá trình hội nhập sau Chiến tranh thế giới thứ hai.</div>
+          <div class="why">Cùng thực thể (EU), nhưng nói về các sự kiện / thông tin khác nhau.</div>
+        </div>
+        <div class="excard">
+          <div class="lvl">③ Điểm TRUNG BÌNH <span class="pill ok">mức tương đồng trung bình</span></div>
+          <div class="sent">Thuật ngữ <b>ái kỷ</b> bắt nguồn từ một câu chuyện trong thần thoại Hy Lạp.</div>
+          <div class="sent">Các triệu chứng giống như của <b>ADHD</b> đã được miêu tả trong các tài liệu y học từ thế kỷ 18.</div>
+          <div class="why">Khác thực thể, nhưng cùng nhóm — nói về các rối loạn / khái niệm tâm lý.</div>
+        </div>
+        <div class="excard">
+          <div class="lvl">④ Điểm KÉM <span class="pill bad">mức tương đồng thấp</span></div>
+          <div class="sent"><b>Dr.Sc</b> là một danh xưng khoa học ở Việt Nam kể từ thời điểm có hiệu lực của Luật Giáo dục năm 1998.</div>
+          <div class="sent">Diện tích <b>sân bay quốc tế Los Angeles</b> vào khoảng 3.425 ha (14 km²).</div>
+          <div class="why">Khác thực thể, khác nhóm — không liên quan về chủ đề.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 7 : Cơ chế đo độ tương đồng ngữ nghĩa ============ -->
+  <section class="slide">
+    <div class="wrap">
+      <h2>Hướng 2: Đo độ <i>tương đồng</i> ngữ nghĩa của các cặp câu</h2>
+      <section>
+        <h3>Xây dựng bộ dữ liệu theo các bước</h3>
+        <ul>
+          <li><b>Làm sạch</b> các câu từ các trang dữ liệu cào được, <b>chuẩn hóa các kí tự viết tắt</b>.</li>
+          <li>Sử dụng một cơ chế (<b>mô hình</b> hoặc <b>LLM</b>) để <b>gán điểm</b>.</li>
+          <li><b>Thay thế các từ chuẩn bằng từ viết tắt</b> (thay ngẫu nhiên) và <b>giữ nguyên điểm số</b>.</li>
+        </ul>
+      </section>
+      <section>
+        <h3>Cơ chế gán điểm</h3>
+        <div class="two">
+          <div class="col">
+            <div class="card">
+              <span class="tag">Mô hình embedding</span>
+              <h4>Gán điểm theo thang 0–5</h4>
+              <p>Chạy qua các <b>mô hình embedding</b> để gán điểm trên các <b>câu đã chuẩn hóa</b>.</p>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card">
+              <span class="tag">LLM</span>
+              <h4>LLM chấm tương đồng</h4>
+              <p>Dùng <b>LLM</b> để chấm điểm tương đồng giữa 2 câu <br> (kèm rubric).</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h3>Thang điểm đo lường độ tương đồng <span class="muted" style="font-size:var(--font-muted)">(từ 0 đến 5)</span></h3>
+        <div class="scale">
+          <div class="srow"><span class="snum s5">5</span>
+            <div class="txt"><b>Tương đương hoàn toàn</b> — hai câu mang cùng một ý nghĩa.</div></div>
+          <div class="srow"><span class="snum s4">4</span>
+            <div class="txt"><b>Gần như tương đương</b> — cùng ý chính, chỉ khác chi tiết nhỏ (cách diễn đạt).</div></div>
+          <div class="srow"><span class="snum s3">3</span>
+            <div class="txt"><b>Tương đương một phần</b> — cùng ý chính nhưng khác một phần chi tiết.</div></div>
+          <div class="srow"><span class="snum s2">2</span>
+            <div class="txt"><b>Không tương đương nhưng có chung chủ đề</b> — có chia sẻ một vài chi tiết chung.</div></div>
+          <div class="srow"><span class="snum s1">1</span>
+            <div class="txt"><b>Không tương đương, có liên quan nhẹ</b> — chỉ dùng chung chủ đề / từ khóa.</div></div>
+          <div class="srow"><span class="snum s0">0</span>
+            <div class="txt"><b>Hoàn toàn khác nhau</b> — không liên quan về ý nghĩa.</div></div>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="wrap">
+      <h2>Hướng 3: Đánh giá embedding theo <i>truy xuất</i></h2>
+      <section>
+        <h3>Mô tả</h3>
+        <p>Đánh giá chất lượng embedding qua bài toán <b>truy xuất văn bản</b>: mô hình cần
+        <b>tìm đúng tài liệu</b> phù hợp trong một <b>tài liệu</b> khi cho trước một <b>câu hỏi</b>.</p>
+      </section>
+      <section>
+        <h3>Cách xây dựng bộ dữ liệu</h3>
+        <ul>
+          <li><b>Tài liệu:</b> tập các văn bản / câu (được nhúng sẵn).</li>
+          <li><b>Câu hỏi:</b> câu hỏi / truy vấn cần <b>lấy lại thông tin</b>.</li>
+          <li>Với mỗi câu hỏi, xác định tập tài liệu <b>đúng / liên quan</b>.</li>
+          <li>Có thể lẫn từ viết tắt ở câu hỏi hoặc tài liệu để kiểm tra <b>độ bền vững</b>.</li>
+        </ul>
+      </section>
+      <section>
+        <h3>Độ đo đánh giá khi truy xuất / rerank</h3>
+        <div class="two">
+          <div><ul>
+            <li><b>Recall@k / Precision@k</b></li>
+            <li><b>MRR@k</b> (Mean Reciprocal Rank)</li>
+          </ul></div>
+          <div><ul>
+            <li><b>nDCG@k</b> (Normalized Discounted Gain)</li>
+            <li><b>MAP</b> (Mean Average Precision)</li>
+          </ul></div>
+        </div>
+        <p class="muted" style="margin-top:.5rem">Điểm càng cao ⇒ embedding xếp hạng tài liệu đúng càng tốt (truy xuất &amp; rerank chính xác).</p>
+      </section>
+      <section>
+        <h3>Vai trò của từ viết tắt</h3>
+        <div class="note">
+          Cả câu hỏi và tài liệu đều có thể chứa <b>viết tắt</b>, nếu embedding không "hiểu" viết tắt, độ truy xuất sẽ sụt rõ.
+        </div>
+      </section>
+      <section>
+        <h3>Lưu ý</h3>
+        <div class="note">
+          Dữ liệu truy xuất rất <b>đồ sộ, phong phú</b>, nhưng câu <b>câu hỏi</b> và <b>tài liệu</b>
+          có <b>độ dài &amp; cách biểu diễn khác nhau</b> <br> → Có thể <b>làm lệch phân phối</b>.
+        </div>
+      </section>
+    </div>
+  </section>
+
+
+  <!-- ============ SLIDE 9 : Fine-tune baseline ============ -->
+  <!-- <section class="slide">
+    <div class="wrap">
+      <h2>Fine-tune và chạy mô hình baseline</h2>
+      <section>
+        <p><b>Ý tưởng:</b> tận dụng nguồn dữ liệu về độ tương đồng ngữ nghĩa lớn để <b>học cấu trúc</b>, 
+          sau đó fine-tune trên bộ dữ liệu <b>SICK-R STS</b>.</p>
+      </section>
+      <section>
+        <ul>
+          <li><b>Gán thêm nhãn độ liên quan</b> (dùng luật hoặc LLM) cho các bộ dữ liệu này.</li>
+          <li><b>Huấn luyện đa tác vụ</b> trước, sau đó mới fine-tune.</li>
+          <li>Huấn luyện theo hàm lỗi <b>CoSENT Loss</b> hoặc <b>Margin Ranking Loss</b>.</li>
+        </ul>
+      </section>
+      <section>
+        <h3>Trực giác: ép thứ tự tương quan thay vì chỉ giá trị tuyệt đối</h3>
+        <div class="two">
+          <div>
+            <div class="formula">
+              sim(q, <b>pos</b>) &gt; sim(q, <b>hard_neg</b>) &gt; sim(q, <b>rand_neg</b>)
+              <div class="muted" style="color:#9fd8d0">← với retrieval</div>
+            </div>
+          </div>
+          <div>
+            <div class="formula">
+              sim(a,b)<b>_entailment</b> ≳ sim(a,b)<b>_contradiction</b> &gt; sim(a,b)<b>_unrelated</b>
+              <div class="muted" style="color:#9fd8d0">← với NLI</div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section>
+        <div class="note">
+          <b>Một vấn đề:</b> dữ liệu truy xuất rất đồ sộ và phong phú, tuy nhiên
+          câu <b>câu hỏi</b> và <b>tài liệu</b> có độ dài và cách biểu diễn khác nhau
+          → có thể <b>làm lệch phân phối</b>.
+        </div>
+      </section>
+    </div>
+  </section> -->
+
+  <!-- ============ SLIDE 10 : Công việc đã làm được ============ -->
+  <section class="slide">
+    <div class="wrap">
+      <h2>Công việc hiện tại đã làm được</h2>
+      <div class="cards">
+        <div class="card">
+          <span class="tag" style="background:#cdeee9">Done ✓</span>
+          <h4>Pipeline lấy dữ liệu viết tắt</h4>
+          <p>Chạy <b>truy vấn SPARQL trên Wikidata</b> để lấy các cặp
+          <i>(từ chuẩn, viết tắt)</i>, gồm các thực thể có thuộc tính viết tắt.</p>
+          <!-- <p class="muted">Thực thể được chọn cần có thuộc tính <b>short name</b> hoặc các thuộc tính viết tắt tương tự.</p> -->
+        </div>
+        <div class="card">
+          <span class="tag" style="background:#cdeee9">Done ✓</span>
+          <h4>Nhóm thực thể</h4>
+          <p>Chia truy vấn thành nhiều nhóm: trường đại học, sân bay, tổ chức,
+          sàn giao dịch, học vị, …</p>
+        </div>
+        <div class="card">
+          <span class="tag" style="background:#cdeee9">Khảo sát</span>
+          <h4>Bộ dữ liệu fine-tune baseline</h4>
+          <p>Khảo sát một số bộ dữ liệu có thể dùng để <b>fine-tune mô hình baseline</b>.</p>
+        </div>
+      </div>
+      <section style="margin-top:1.2rem">
+        <div class="note">
+          <b>Bước tiếp theo:</b> sửa truy vấn Wikidata để giảm nhiễu, cân bằng các nhóm thực thể,
+          hoàn thiện dữ liệu và chạy thử các <br> mô hình embedding chưa fine-tune.
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 11 : Một số vấn đề ============ -->
+  <section class="slide">
+    <div class="wrap">
+      <h2>Một số vấn đề phát sinh</h2>
+      <p>Khi lấy dữ liệu theo truy vấn trên Wikidata, thu được khoảng <b>38000 thực thể</b>, nhưng phát sinh các vấn đề sau:</p>
+      <ul>
+        <li><b>Tên viết tắt không phải tiếng Anh:</b> Tên viết tắt có thể bằng ký tự Trung Quốc, Armenia, Cyrillic…</li>
+        <li><b>Trùng thực thể:</b> Cùng một thực thể xuất hiện ở nhiều nhóm hoặc nhiều lần lấy.</li>
+        <li><b>Tên viết tắt không theo khuôn mẫu:</b> Định dạng viết không nhất quán, chưa thể dùng chung.</li>
+        <li><b>Quá thời gian chạy:</b> Một số truy vấn bị <b>quá thời gian</b> giới hạn của Wikidata, do đó chưa cào đủ dữ liệu.</li>
+        <li><b>Lệch phân phối:</b> Các nhóm bị chênh số lượng nặng do có sự khác biệt trong cách chọn đặc trưng viết tắt.</li>
+      </ul>
+      <section style="margin-top:1.2rem">
+        <div class="note">
+          <b>Hướng xử lý:</b> chỉnh lại truy vấn Wikidata để <b>giảm nhiễu</b>,
+          lọc ngôn ngữ / khuôn mẫu hợp lệ, và <b>tăng số lượng</b> thực thể <br> mỗi nhóm.
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <!-- ============ SLIDE 12 : Phân phối các nhóm thực thể ============ -->
+  <section class="slide">
+    <div class="wrap">
+      <h2>Phân phối các nhóm thực thể</h2>
+      <p class="muted" style="margin-bottom:.8rem">Số lượng cặp (item, thuộc tính) theo từng nhóm — tổng <b>38.502</b> bản ghi.</p>
+      <div class="bar-chart">
+        <div class="bar-row"><span class="bar-label">Cơ quan chính phủ</span><div class="bar" style="--v:100%"></div><span class="bar-val">13.678</span></div>
+        <div class="bar-row"><span class="bar-label">Tổ chức phi chính phủ</span><div class="bar" style="--v:64.4%"></div><span class="bar-val">8.876</span></div>
+        <div class="bar-row"><span class="bar-label">Sân bay</span><div class="bar" style="--v:62.5%"></div><span class="bar-val">8.593</span></div>
+        <div class="bar-row"><span class="bar-label">Trường đại học</span><div class="bar" style="--v:23.8%"></div><span class="bar-val">3.284</span></div>
+        <div class="bar-row"><span class="bar-label">Ngôn ngữ</span><div class="bar" style="--v:10.2%"></div><span class="bar-val">1.406</span></div>
+        <div class="bar-row"><span class="bar-label">Quốc gia có chủ quyền</span><div class="bar" style="--v:6.0%"></div><span class="bar-val">827</span></div>
+        <div class="bar-row"><span class="bar-label">Công ty đại chúng</span><div class="bar" style="--v:5.3%"></div><span class="bar-val">726</span></div>
+        <div class="bar-row"><span class="bar-label">Học vị</span><div class="bar" style="--v:3.0%"></div><span class="bar-val">416</span></div>
+        <div class="bar-row"><span class="bar-label">Sàn giao dịch chứng khoán</span><div class="bar" style="--v:2.6%"></div><span class="bar-val">362</span></div>
+        <div class="bar-row"><span class="bar-label">Nguyên tố hóa học</span><div class="bar" style="--v:1.3%"></div><span class="bar-val">176</span></div>
+        <div class="bar-row"><span class="bar-label">Đơn vị tiền tệ</span><div class="bar" style="--v:0.6%"></div><span class="bar-val">84</span></div>
+        <div class="bar-row"><span class="bar-label">Định dạng tệp</span><div class="bar" style="--v:0.5%"></div><span class="bar-val">74</span></div>
+      </div>
+      <section style="margin-top:1rem">
+        <div class="note"><b>Nhận xét:</b> Ba nhóm lớn nhất chiếm khoảng <b>81%</b> toàn bộ bản ghi.</div>
+      </section>
+    </div>
+  </section>
+
+  <div class="progress" id="progress"></div>
+  <div class="page" id="page">1 / 7</div>
+  <button class="arrow" id="prev" aria-label="Trang trước">‹</button>
+  <button class="arrow" id="next" aria-label="Trang kế">›</button>
+</div>
+
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total = slides.length, cur = 0;
+  var pageEl = document.getElementById('page');
+  var progEl = document.getElementById('progress');
+
+  function go(i){
+    if(i < 0 || i >= total) return;
+    cur = i;
+    slides.forEach(function(s,idx){
+      if(idx === cur){
+        if(!s.classList.contains('now')){ s.classList.add('now'); }
+      } else {
+        s.classList.remove('now');
+      }
+      if(idx !== cur) s.scrollTop = 0;
+    });
+    window.scrollTo(0,0);
+    pageEl.textContent = (cur+1) + ' / ' + total;
+    progEl.style.width = ((cur+1)/total*100) + '%';
+  }
+  document.getElementById('next').addEventListener('click', function(e){e.stopPropagation();go(cur+1);});
+  document.getElementById('prev').addEventListener('click', function(e){e.stopPropagation();go(cur-1);});
+  // wheel / scroll to navigate the deck (when at top/bottom of a slide)
+  var locked = false;
+  document.getElementById('deck').addEventListener('wheel', function(e){
+    if(locked) return;
+    e.preventDefault();
+    locked = true;
+    var el = slides[cur];
+    var atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 4;
+    var atTop = el.scrollTop === 0;
+    if(e.deltaY > 0 && atBottom) go(cur+1);
+    else if(e.deltaY < 0 && atTop) go(cur-1);
+    else el.scrollTop += e.deltaY;
+    clearTimeout(locked.t);
+    locked.t = setTimeout(function(){locked=false;}, 650);
+  }, {passive:false});
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') go(cur+1);
+    if(e.key === 'ArrowLeft' || e.key === 'PageUp') go(cur-1);
+  });
+  // basic swipe (mobile)
+  var sx = null;
+  document.addEventListener('touchstart', function(e){ sx = e.touches[0].clientX; }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    if(sx === null) return;
+    var dx = e.changedTouches[0].clientX - sx;
+    if(Math.abs(dx) > 50) go(cur + (dx < 0 ? 1 : -1));
+    sx = null;
+  }, {passive:true});
+  go(0);
+})();
+</script>
+</body>
+</html>
